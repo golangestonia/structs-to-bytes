@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -9,6 +10,7 @@ import (
 
 func main() {
 	pkg := flag.String("package", "", "package name")
+	out := flag.String("out", "", "output file")
 	flag.Parse()
 
 	schema := Schema(
@@ -25,7 +27,9 @@ func main() {
 		),
 	)
 
-	err := T.Execute(os.Stdout, map[string]any{
+	var b bytes.Buffer
+
+	err := T.Execute(&b, map[string]any{
 		"Package": *pkg,
 		"Schema":  schema,
 	})
@@ -33,6 +37,8 @@ func main() {
 		fmt.Fprintln(os.Stderr, err)
 		os.Exit(1)
 	}
+
+	os.WriteFile(*out, b.Bytes(), 0755)
 }
 
 var T = template.Must(template.New("").Funcs(template.FuncMap{
@@ -48,8 +54,6 @@ var T = template.Must(template.New("").Funcs(template.FuncMap{
 }).Parse(`package {{.Package}}
 
 import (
-	"errors"
-
 	"github.com/golang-estonia/structs-to-bytes/est"
 	"github.com/zeebo/errs"
 )
@@ -60,11 +64,11 @@ type {{$m.Name}} []{{$m.SliceOf}}
 
 func (m {{$m.Name}}) EncodeEst(stream *est.Stream) (err error) {
 	if err = stream.WriteUint64(uint64(len(m))); err != nil {
-		return err
+		return errs.Wrap(err)
 	}
 	for i := range m {
 		if err = stream.WriteMessage(m[i].EncodeEst); err != nil {
-			return err
+			return errs.Wrap(err)
 		}
 	}
 	return nil
@@ -73,12 +77,12 @@ func (m {{$m.Name}}) EncodeEst(stream *est.Stream) (err error) {
 func (m *{{$m.Name}}) DecodeEst(stream *est.Stream) (err error) {
 	n, err := stream.ReadUint64()
 	if err != nil {
-		return err
+		return errs.Wrap(err)
 	}
 	*m = make({{$m.Name}}, int(n))
 	for i := range *m {
 		if err = stream.ReadMessage((*m)[i].DecodeEst); err != nil {
-			return err
+			return errs.Wrap(err)
 		}
 	}
 	return nil
@@ -100,7 +104,6 @@ func (m {{$m.Name}}) EncodeEst(stream *est.Stream) (err error) {
 	if err = stream.WriteMessage(m.{{$f.Name}}.EncodeEst); err != nil {
 		return errs.Wrap(err)
 	}
-	{{ $f.Name }}
 	{{ end -}}
 	{{- end }}
 	return nil
@@ -116,7 +119,6 @@ func (m *{{$m.Name}}) DecodeEst(stream *est.Stream) (err error) {
 	if err = stream.ReadMessage(m.{{$f.Name}}.DecodeEst); err != nil {
 		return errs.Wrap(err)
 	}
-	{{ $f.Name }}
 	{{ end -}}
 	{{- end }}
 	return nil
