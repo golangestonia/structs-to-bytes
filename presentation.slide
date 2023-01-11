@@ -42,7 +42,7 @@ Easiest way to encode an integer to `[]byte`.
 * `binary.BigEndian`
 * `binary.LittleEndian`
 
-.code 00-binary/main_test.go /^func Example/,/^}/
+.code 01-binary/main_test.go /^func Example/,/^}/
 
 ## encoding
 
