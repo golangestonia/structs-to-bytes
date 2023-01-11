@@ -2,6 +2,7 @@
 Encoding and Decoding deep-dive
 
 Egon Elbre
+Golang Estonia
 2023-01-11-T19:00:00
 egonelbre.com
 
@@ -13,9 +14,14 @@ and decoding libraries.
 
 Code can be found at [github.com/golang-estonia/structs-to-bytes](https://github.com/golang-estonia/structs-to-bytes).
 
+## Topics
 
-
-
+1. Standard Library
+2. Call-Based Marshaling
+3. Composed Marshaling
+4. Reflection Based Marshaling
+5. Schema Based Approaches
+6. Unsafe
 
 ## Standard Library
 
@@ -122,9 +128,71 @@ Also look at the examples in [encoding/json](https://pkg.go.dev/encoding/json).
 
 
 
-## Unsafe
+## Call Based
+## Call Based: Notes
 
-## Unsafe Casting
+This is pretty much `json.Marshaler` and `json.Unmarshaler` wired together
+manually.
+
+Notes:
+* The most straightforward code
+* Easy to make typos
+* Potential binary bloat
+* More difficult to optimize after-wards.
+
+
+
+
+
+## Composed Marshaling
+## Composed Marshaling: Notes
+
+Usually a custom solution for a given problem.
+
+Notes:
+* Useful when you need to support multiple encodings
+* Helps to reduce boiler-plate and is declarative
+* Not as annoying to write as reflection code
+* Potential binary bloat
+
+
+
+
+
+## Reflection Based
+## Reflection Based: Notes
+
+`encoding/json` and et al. are good examples of this approach.
+
+Notes:
+* Decent middle-of-the-road approach
+* Just having field tags is usually sufficient
+* Reflection based code is annoying
+* Usually minimal binary bloat
+
+
+
+
+
+## Schema Based
+## Schema Based: Notes
+
+Well known example is protobuf.
+
+Notes:
+
+* Useful when you need to support multiple languages
+* Allows to avoid writing boiler-plate
+* Great flexibility in capabilities
+* Less convenient to use
+* Binary bloat is a concern
+
+
+
+
+
+## Unsafe
+## Unsafe: Notes
 
 Use only when absolutely there's no other way to achieve what you need.
 
