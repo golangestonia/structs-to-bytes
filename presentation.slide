@@ -1,0 +1,117 @@
+# From Bytes to Go and Back
+Encoding and Decoding deep-dive
+
+Egon Elbre
+2023-01-11-T19:00:00
+egonelbre.com
+
+## From Bytes to Go and Back
+
+Most network and disk IO requires converting from `[]byte` to some structs and
+back to `[]byte`. Let's take a deep dive into different ways of writing encoding
+and decoding libraries.
+
+Code can be found at [github.com/golang-estonia/structs-to-bytes](https://github.com/golang-estonia/structs-to-bytes).
+
+
+
+## Standard Library
+
+## encoding/binary
+
+Easiest way to encode an integer to `[]byte`.
+
+* `binary.BigEndian`
+* `binary.LittleEndian`
+
+.code 00-binary/main_test.go /^func Example/,/^}/
+
+## encoding
+
+There are quite a few standard packages:
+
+* **encoding/json**
+* encoding/xml
+* encoding/gob
+* encoding/asn1
+
+## encoding/json: types
+
+There are quite a few different options depending on the specific
+encoding package. We won't cover them as these aren't that interesting.
+
+.code 01-json/main_test.go /^type Person/,/^}/
+
+## encoding/json: Encode
+
+You've probably used this already, but for completeness:
+
+.code 01-json/main_test.go /^func ExampleEncode/,/^}/
+
+## encoding/json: Decode
+
+Ditto:
+
+.code 01-json/main_test.go /^func ExampleDecode/,/^}/
+
+## encoding/json: inline Decode
+
+Less common, but can be useful for API requests:
+
+.code 01-json/main_test.go /^func ExampleInlineDecode/,/^}/
+
+## encoding/json: Encoder
+
+The packages also support streaming, reading from `io.Reader` and
+writing to `io.Writer`.
+
+.code 01-json/main_test.go /^func ExampleEncoder/,/^}/
+
+## TextMarshaler and BinaryMarshaler
+
+`encoding` package contains definitions:
+
+.code 01-json/main_test.go /START ENCODINGDEFINITIONS OMIT/,/END ENCODINGDEFINITIONS OMIT/
+
+</code>
+
+## TextMarshaler: implementation
+
+We can write a custom point serialization:
+
+.code 01-json/main_test.go /START POINT OMIT/,/END POINT OMIT/
+
+## TextMarshaler: usage
+
+Use as a regular field and the appropriate `MarshalText` will be called and
+also escaped as necessary.
+
+.code 01-json/main_test.go /^func ExamplePoint/,/^}/
+
+## Unmarshaling: implementation
+
+We'll skip the usage, as it's staight-forward
+
+.code 01-json/main_test.go /^func .*Point\) UnmarshalBinary/,/^}/
+
+## json.Marshaler and json.Unmarshaler
+
+There are also encoding specific interfaces:
+
+.code 01-json/main_test.go /START JSONDEFINITIONS OMIT/,/END JSONDEFINITIONS OMIT/
+
+## json.Marshaler: example
+
+Remember the `MarshalJSON` must output valid JSON:
+
+.code 01-json/main_test.go /START QUOTEDPERSON OMIT/,/END QUOTEDPERSON OMIT/
+
+## json.Marshaler: temporary
+
+It's also possible to use a different type when you need to do data-munging:
+
+.code 01-json/main_test.go /START TEMPPERSON OMIT/,/END TEMPPERSON OMIT/
+
+## json.Marshaler
+
+Also look at the examples in [encoding/json](https://pkg.go.dev/encoding/json).
