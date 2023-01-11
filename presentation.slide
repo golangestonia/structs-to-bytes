@@ -18,10 +18,11 @@ Code can be found at [github.com/golang-estonia/structs-to-bytes](https://github
 
 * What should be encoded?
 * Forwards/Backwards compatibility concerns
-* Performance details
-* Is JSON the best format?
-* Is Protobuf the best format?
-* Protocol management
+* High-Performance details
+* Compression
+* Integer encoding formats
+* Is JSON or Protobuf the best format?
+* Protocols
 
 ## Topics
 

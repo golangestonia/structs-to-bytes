@@ -1,28 +1,24 @@
 package main
 
 import (
-	"github.com/golang-estonia/structs-to-bytes/stream"
+	"github.com/golang-estonia/structs-to-bytes/est"
 	"github.com/zeebo/errs"
 )
 
-type Specer interface {
-	Spec() Spec
-}
-
 type Spec interface {
-	Encode(*stream.Stream) error
-	Decode(*stream.Stream) error
+	EncodeEst(*est.Stream) error
+	DecodeEst(*est.Stream) error
 }
 
 type Uint64 struct {
 	V *uint64
 }
 
-func (v Uint64) Encode(s *stream.Stream) (err error) {
+func (v Uint64) EncodeEst(s *est.Stream) (err error) {
 	return errs.Wrap(s.WriteUint64(*v.V))
 }
 
-func (v Uint64) Decode(s *stream.Stream) (err error) {
+func (v Uint64) DecodeEst(s *est.Stream) (err error) {
 	*v.V, err = s.ReadUint64()
 	return errs.Wrap(err)
 }
@@ -31,20 +27,20 @@ type String struct {
 	V *string
 }
 
-func (v String) Encode(s *stream.Stream) (err error) {
+func (v String) EncodeEst(s *est.Stream) (err error) {
 	return errs.Wrap(s.WriteString(*v.V))
 }
 
-func (v String) Decode(s *stream.Stream) (err error) {
+func (v String) DecodeEst(s *est.Stream) (err error) {
 	*v.V, err = s.ReadString()
 	return errs.Wrap(err)
 }
 
 type Ordered []Spec
 
-func (v Ordered) Encode(s *stream.Stream) (err error) {
+func (v Ordered) EncodeEst(s *est.Stream) (err error) {
 	for _, m := range v {
-		err = m.Encode(s)
+		err = m.EncodeEst(s)
 		if err != nil {
 			return errs.Wrap(err)
 		}
@@ -52,9 +48,9 @@ func (v Ordered) Encode(s *stream.Stream) (err error) {
 	return nil
 }
 
-func (v Ordered) Decode(s *stream.Stream) (err error) {
+func (v Ordered) DecodeEst(s *est.Stream) (err error) {
 	for _, m := range v {
-		err = m.Decode(s)
+		err = m.DecodeEst(s)
 		if err != nil {
 			return errs.Wrap(err)
 		}
@@ -66,15 +62,15 @@ type Message struct {
 	V Spec
 }
 
-func (v Message) Encode(s *stream.Stream) (err error) {
-	return errs.Wrap(s.WriteMessage(func(s *stream.Stream) error {
-		return errs.Wrap(v.V.Encode(s))
+func (v Message) EncodeEst(s *est.Stream) (err error) {
+	return errs.Wrap(s.WriteMessage(func(s *est.Stream) error {
+		return errs.Wrap(v.V.EncodeEst(s))
 	}))
 }
 
-func (v Message) Decode(s *stream.Stream) (err error) {
-	return errs.Wrap(s.ReadMessage(func(s *stream.Stream) error {
-		return errs.Wrap(v.V.Decode(s))
+func (v Message) DecodeEst(s *est.Stream) (err error) {
+	return errs.Wrap(s.ReadMessage(func(s *est.Stream) error {
+		return errs.Wrap(v.V.DecodeEst(s))
 	}))
 }
 
@@ -84,7 +80,7 @@ type Slice struct {
 	Elem     func(i int) Spec
 }
 
-func (v Slice) Encode(s *stream.Stream) (err error) {
+func (v Slice) EncodeEst(s *est.Stream) (err error) {
 	n := v.Count()
 	err = s.WriteUint64(uint64(n))
 	if err != nil {
@@ -92,7 +88,7 @@ func (v Slice) Encode(s *stream.Stream) (err error) {
 	}
 
 	for i := 0; i < n; i++ {
-		err = Message{v.Elem(i)}.Encode(s)
+		err = Message{v.Elem(i)}.EncodeEst(s)
 		if err != nil {
 			return errs.Wrap(err)
 		}
@@ -101,7 +97,7 @@ func (v Slice) Encode(s *stream.Stream) (err error) {
 	return nil
 }
 
-func (v Slice) Decode(s *stream.Stream) (err error) {
+func (v Slice) DecodeEst(s *est.Stream) (err error) {
 	var n uint64
 	n, err = s.ReadUint64()
 	if err != nil {
@@ -110,7 +106,7 @@ func (v Slice) Decode(s *stream.Stream) (err error) {
 	v.SetCount(int(n))
 
 	for i := 0; i < int(n); i++ {
-		err = Message{v.Elem(i)}.Decode(s)
+		err = Message{v.Elem(i)}.DecodeEst(s)
 		if err != nil {
 			return errs.Wrap(err)
 		}

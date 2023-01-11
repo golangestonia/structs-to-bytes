@@ -1,4 +1,4 @@
-package stream
+package est
 
 import (
 	"bytes"
@@ -15,7 +15,7 @@ type Stream struct {
 	data bytes.Buffer
 }
 
-func FromBytes(data []byte) *Stream {
+func StreamFromBytes(data []byte) *Stream {
 	return &Stream{data: *bytes.NewBuffer(data)}
 }
 func (stream *Stream) Bytes() []byte { return stream.data.Bytes() }
@@ -111,7 +111,7 @@ func (stream *Stream) ReadMessage(fn func(*Stream) error) error {
 		return errs.Wrap(err)
 	}
 
-	err = fn(FromBytes(data))
+	err = fn(StreamFromBytes(data))
 	if err != nil {
 		return errs.Wrap(err)
 	}

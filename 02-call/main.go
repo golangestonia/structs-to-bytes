@@ -13,7 +13,7 @@ func main() {
 		},
 	}
 
-	data, err := person.Encode()
+	data, err := person.EncodeEst()
 	if err != nil {
 		panic(fmt.Sprintf("%+v", err))
 	}
@@ -21,7 +21,7 @@ func main() {
 
 	{
 		var p Person
-		err := p.Decode(data)
+		err := p.DecodeEst(data)
 		if err != nil {
 			panic(fmt.Sprintf("%+v", err))
 		}

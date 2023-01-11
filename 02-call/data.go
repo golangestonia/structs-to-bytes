@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 
-	"github.com/golang-estonia/structs-to-bytes/stream"
+	"github.com/golang-estonia/structs-to-bytes/est"
 	"github.com/zeebo/errs"
 )
 
@@ -21,36 +21,36 @@ type Point struct {
 	X, Y uint64
 }
 
-func (p *Person) Encode() (data []byte, err error) {
-	data = stream.AppendString(data, p.Name)
-	data = stream.AppendUint64(data, p.Age)
+func (p *Person) EncodeEst() (data []byte, err error) {
+	data = est.AppendString(data, p.Name)
+	data = est.AppendUint64(data, p.Age)
 
-	sub, err := p.Path.Encode()
+	sub, err := p.Path.EncodeEst()
 	if err != nil {
 		return nil, errs.Wrap(err)
 	}
-	data = stream.AppendBytes(data, sub)
+	data = est.AppendBytes(data, sub)
 
 	return data, nil
 }
 
-func (p *Person) Decode(data []byte) (err error) {
-	p.Name, data, err = stream.ReadString(data)
+func (p *Person) DecodeEst(data []byte) (err error) {
+	p.Name, data, err = est.ReadString(data)
 	if err != nil {
 		return errs.Wrap(err)
 	}
 
-	p.Age, data, err = stream.ReadUint64(data)
+	p.Age, data, err = est.ReadUint64(data)
 	if err != nil {
 		return errs.Wrap(err)
 	}
 
 	var sub []byte
-	sub, data, err = stream.ReadBytes(data)
+	sub, data, err = est.ReadBytes(data)
 	if err != nil {
 		return errs.Wrap(err)
 	}
-	err = p.Path.Decode(sub)
+	err = p.Path.DecodeEst(sub)
 	if err != nil {
 		return errs.Wrap(err)
 	}
@@ -62,21 +62,21 @@ func (p *Person) Decode(data []byte) (err error) {
 	return nil
 }
 
-func (points Points) Encode() (data []byte, err error) {
-	data = stream.AppendUint64(data, uint64(len(points)))
+func (points Points) EncodeEst() (data []byte, err error) {
+	data = est.AppendUint64(data, uint64(len(points)))
 	for i := range points {
-		sub, err := points[i].Encode()
+		sub, err := points[i].EncodeEst()
 		if err != nil {
 			return nil, errs.Wrap(err)
 		}
-		data = stream.AppendBytes(data, sub)
+		data = est.AppendBytes(data, sub)
 	}
 	return data, nil
 }
 
-func (points *Points) Decode(data []byte) (err error) {
+func (points *Points) DecodeEst(data []byte) (err error) {
 	var n uint64
-	n, data, err = stream.ReadUint64(data)
+	n, data, err = est.ReadUint64(data)
 	if err != nil {
 		return errs.Wrap(err)
 	}
@@ -84,11 +84,11 @@ func (points *Points) Decode(data []byte) (err error) {
 	*points = make(Points, int(n))
 	for i := range *points {
 		var sub []byte
-		sub, data, err = stream.ReadBytes(data)
+		sub, data, err = est.ReadBytes(data)
 		if err != nil {
 			return errs.Wrap(err)
 		}
-		err = (*points)[i].Decode(sub)
+		err = (*points)[i].DecodeEst(sub)
 		if err != nil {
 			return errs.Wrap(err)
 		}
@@ -101,18 +101,18 @@ func (points *Points) Decode(data []byte) (err error) {
 	return nil
 }
 
-func (p *Point) Encode() (data []byte, err error) {
-	data = stream.AppendUint64(data, p.X)
-	data = stream.AppendUint64(data, p.Y)
+func (p *Point) EncodeEst() (data []byte, err error) {
+	data = est.AppendUint64(data, p.X)
+	data = est.AppendUint64(data, p.Y)
 	return data, nil
 }
 
-func (p *Point) Decode(data []byte) (err error) {
-	p.X, data, err = stream.ReadUint64(data)
+func (p *Point) DecodeEst(data []byte) (err error) {
+	p.X, data, err = est.ReadUint64(data)
 	if err != nil {
 		return errs.Wrap(err)
 	}
-	p.Y, data, err = stream.ReadUint64(data)
+	p.Y, data, err = est.ReadUint64(data)
 	if err != nil {
 		return errs.Wrap(err)
 	}

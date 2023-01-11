@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/golang-estonia/structs-to-bytes/stream"
+	"github.com/golang-estonia/structs-to-bytes/est"
 )
 
 func main() {
@@ -17,8 +17,8 @@ func main() {
 		},
 	}
 
-	var out stream.Stream
-	err := person.Encode(&out)
+	var out est.Stream
+	err := person.EncodeEst(&out)
 	if err != nil {
 		panic(fmt.Sprintf("%+v", err))
 	}
@@ -27,7 +27,7 @@ func main() {
 
 	{
 		var p Person
-		err := p.Decode(stream.FromBytes(data))
+		err := p.DecodeEst(est.StreamFromBytes(data))
 		if err != nil {
 			panic(fmt.Sprintf("%+v", err))
 		}

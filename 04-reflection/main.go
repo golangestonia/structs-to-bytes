@@ -1,12 +1,20 @@
 package main
 
-// See More Details in https://egonelbre.com/composed-serialization/
-
 import (
 	"fmt"
-
-	"github.com/golang-estonia/structs-to-bytes/est"
 )
+
+type Person struct {
+	Name string
+	Age  uint64
+	Path Points
+}
+
+type Points []Point
+
+type Point struct {
+	X, Y uint64
+}
 
 func main() {
 	person := Person{
@@ -19,17 +27,15 @@ func main() {
 		},
 	}
 
-	var s est.Stream
-	err := person.Est().EncodeEst(&s)
+	data, err := Encode(&person)
 	if err != nil {
 		panic(fmt.Sprintf("%+v", err))
 	}
-	data := s.Bytes()
 	fmt.Println(data)
 
 	{
 		var p Person
-		err := p.Est().DecodeEst(est.StreamFromBytes(data))
+		err := Decode(data, &p)
 		if err != nil {
 			panic(fmt.Sprintf("%+v", err))
 		}
