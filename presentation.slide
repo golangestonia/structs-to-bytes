@@ -14,6 +14,15 @@ and decoding libraries.
 
 Code can be found at [github.com/golang-estonia/structs-to-bytes](https://github.com/golang-estonia/structs-to-bytes).
 
+## Non-Topics
+
+* What should be encoded?
+* Forwards/Backwards compatibility concerns
+* Performance details
+* Is JSON the best format?
+* Is Protobuf the best format?
+* Protocol management
+
 ## Topics
 
 1. Standard Library
