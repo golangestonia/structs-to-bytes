@@ -36,7 +36,7 @@ func encode(v reflect.Value) (data []byte, err error) {
 				return nil, errs.Wrap(err)
 			}
 
-			// TODO: handle pointer to struct here
+			// TODO: handle pointers here as well
 			if f.Kind() == reflect.Struct {
 				data = est.AppendBytes(data, sub)
 			} else {
@@ -55,6 +55,7 @@ func encode(v reflect.Value) (data []byte, err error) {
 					return nil, errs.Wrap(err)
 				}
 
+				// TODO: handle pointers here as well
 				if f.Kind() == reflect.Struct {
 					data = est.AppendBytes(data, sub)
 				} else {
@@ -107,7 +108,7 @@ func decode(data []byte, v reflect.Value) (rest []byte, err error) {
 	case reflect.Struct:
 		for i := 0; i < v.NumField(); i++ {
 			f := v.Field(i)
-			// TODO: handle pointer to struct here
+			// TODO: handle pointers here as well
 			if f.Kind() == reflect.Struct {
 				data, err = est.ReadMessage(data, func(msgdata []byte) (err error) {
 					msgdata, err = decode(msgdata, f)
@@ -141,6 +142,7 @@ func decode(data []byte, v reflect.Value) (rest []byte, err error) {
 
 			for i := 0; i < int(n); i++ {
 				f := v.Index(i)
+				// TODO: handle pointers here as well
 				if f.Kind() == reflect.Struct {
 					data, err = est.ReadMessage(data, func(msgdata []byte) (err error) {
 						msgdata, err = decode(msgdata, f)
