@@ -182,6 +182,7 @@ Well known example is protobuf.
 Notes:
 
 * Useful when you need to support multiple languages
+* Useful when you have lots of message types in an specification (e.g. DNS)
 * Allows to avoid writing boiler-plate
 * Great flexibility in capabilities
 * Less convenient to use
