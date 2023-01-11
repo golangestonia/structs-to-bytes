@@ -15,6 +15,8 @@ Code can be found at [github.com/golang-estonia/structs-to-bytes](https://github
 
 
 
+
+
 ## Standard Library
 
 ## encoding/binary
@@ -115,3 +117,31 @@ It's also possible to use a different type when you need to do data-munging:
 ## json.Marshaler
 
 Also look at the examples in [encoding/json](https://pkg.go.dev/encoding/json).
+
+
+
+
+
+## Unsafe
+
+## Unsafe Casting
+
+Use only when absolutely there's no other way to achieve what you need.
+
+Notes:
+
+* Can be very performant
+* Doesn't play nice with pointers (that includes slices and strings)
+* Older ARM processors don't support "byte" addressing
+* Take note of computer endianess
+* Take note of `int` size
+* See all the warnings in https://pkg.go.dev/unsafe
+* Mistakes can lead to huge problems
+
+**General recommendation, don't use it.**
+
+## Unsafe, but friendlier
+
+It's possible to write the `unsafe` usage in a friendlier manner.
+
+**But you still shouldn't use it.**
